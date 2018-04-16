@@ -6,6 +6,7 @@
 'use strict';
 
 var fs = require('fs');
+//var param = require('param')
 var express = require('express');
 var app = express();
 
@@ -45,19 +46,20 @@ app.route('/')
 
 
 app.use('/new',(req,res)=>{
-
-      let url = req.url.split('/')[1];
+      let origin = req.get('host');
+      let url = req.url.slice(1);
+      console.log('2',url,req.baseUrl);
       if(url.indexOf('.')===-1)
         res.end('Wrong Url');
       else{
 
         if(saveUrls[url]!=undefined){
         
-          res.send(`<h1>Url is already exist</h1> Please use: <a href ="${__dirname}\\${saveUrls[url]}">${__dirname}\\${saveUrls[url]}</a> to access it`);
+          res.send(`<h1>Url is already exist</h1> Please use: <a href ="${origin}/${saveUrls[url]}">${origin}/${saveUrls[url]}</a> to access it`);
         } else {
           saveUrls[url] = Math.ceil(Math.random()*1000).toString();
           console.log('after:',saveUrls[url]);
-          res.end(`<h1>Short Url has been created</h1> Please use: <a href ="${__dirname}\\${saveUrls[url]}">${__dirname}\\${saveUrls[url]}</a> to access it`);
+          res.end(`<h1>Short Url has been created</h1> Please use: <a href ="${origin}/${saveUrls[url]}">${origin}/${saveUrls[url]}</a> to access it`);
         }
       }
     });
@@ -66,11 +68,11 @@ app.use('/new',(req,res)=>{
 app.use(function(req, res, next){
   console.log('here');
   let sUrl = req.url.split('/')[1];   
-  
   let rUrl = getKeyByValue(saveUrls,sUrl);
   console.log(sUrl,rUrl);
   if(rUrl!=undefined){
-    let s = /http/.test(rUrl.toLowerCase()) ? rUrl : `http://${rUrl}`;     
+    console.log('1',rUrl)
+    let s = /http/.test(rUrl.toLowerCase()) ? rUrl : `http:%2F%2F${rUrl}`;     
     console.log(s);
     res.redirect(s);
     return;        
