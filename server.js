@@ -48,31 +48,27 @@ app.route('/')
 app.use('/new',(req,res)=>{
       let origin = req.get('host');
       let url = req.url.slice(1);
-      console.log('2',url,req.baseUrl);
       if(url.indexOf('.')===-1)
         res.end('Wrong Url');
       else{
 
-        if(saveUrls[url]!=undefined){
-        
-          res.send(`<h1>Url is already exist</h1> Please use: <a href ="${origin}/${saveUrls[url]}">${origin}/${saveUrls[url]}</a> to access it`);
-        } else {
+        if(saveUrls[url]==undefined){
           saveUrls[url] = Math.ceil(Math.random()*1000).toString();
-          console.log('after:',saveUrls[url]);
-          res.end(`<h1>Short Url has been created</h1> Please use: <a href ="${origin}/${saveUrls[url]}">${origin}/${saveUrls[url]}</a> to access it`);
         }
+        let s = "http" + (req.socket.encrypted ? "s" : "") + "://"+ origin+'/'+saveUrls[url];
+        res.send(`<h1>Url is already exist</h1> Please use: <a href ="${s}">${s}</a> to access it`);        
       }
     });
 
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
   console.log('here');
-  let sUrl = req.url.split('/')[1];   
+  let sUrl = req.url.slice(1);   
   let rUrl = getKeyByValue(saveUrls,sUrl);
   console.log(sUrl,rUrl);
   if(rUrl!=undefined){
     console.log('1',rUrl)
-    let s = /http/.test(rUrl.toLowerCase()) ? rUrl : `http:%2F%2F${rUrl}`;     
+    let s = /http/.test(rUrl.toLowerCase()) ? rUrl : `http://${rUrl}`;     
     console.log(s);
     res.redirect(s);
     return;        
