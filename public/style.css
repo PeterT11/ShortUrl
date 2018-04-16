@@ -2,10 +2,15 @@
 
 body {
 	font-family: 'Roboto', sans-serif;
-	font-size: 16px;
+	font-size: 30px;
 	color: #222;
 	background-color: #ECF0F1;
 	text-align: center;
+}
+
+.example{
+	background-color:#992740;
+	color:white;
 }
 
 .container {

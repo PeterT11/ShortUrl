@@ -32,14 +32,49 @@ app.route('/_api/package.json')
       res.type('txt').send(data.toString());
     });
   });
+var saveUrls = {};  
   
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
 app.route('/')
     .get(function(req, res) {
 		  res.sendFile(process.cwd() + '/views/index.html');
-    })
+    });
+
+
+app.use('/new',(req,res)=>{
+
+      let url = req.url.split('/')[1];
+      if(url.indexOf('.')===-1)
+        res.end('Wrong Url');
+      else{
+
+        if(saveUrls[url]!=undefined){
+        
+          res.send(`<h1>Url is already exist</h1> Please use: <a href ="${__dirname}\\${saveUrls[url]}">${__dirname}\\${saveUrls[url]}</a> to access it`);
+        } else {
+          saveUrls[url] = Math.ceil(Math.random()*1000).toString();
+          console.log('after:',saveUrls[url]);
+          res.end(`<h1>Short Url has been created</h1> Please use: <a href ="${__dirname}\\${saveUrls[url]}">${__dirname}\\${saveUrls[url]}</a> to access it`);
+        }
+      }
+    });
 
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
+  console.log('here');
+  let sUrl = req.url.split('/')[1];   
+  
+  let rUrl = getKeyByValue(saveUrls,sUrl);
+  console.log(sUrl,rUrl);
+  if(rUrl!=undefined){
+    let s = /http/.test(rUrl.toLowerCase()) ? rUrl : `http://${rUrl}`;     
+    console.log(s);
+    res.redirect(s);
+    return;        
+  }
   res.status(404);
   res.type('txt').send('Not found');
 });
@@ -53,7 +88,7 @@ app.use(function(err, req, res, next) {
   }  
 })
 
-app.listen(process.env.PORT, function () {
+app.listen(3000, function () {
   console.log('Node.js listening ...');
 });
 
